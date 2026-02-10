@@ -1,0 +1,5 @@
+wallet.json
+ledger.json
+peers.json
+__pycache__/
+*.pyc
