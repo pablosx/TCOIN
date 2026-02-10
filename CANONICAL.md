@@ -1,111 +1,85 @@
-# TCOIN — Canonical Specification (v0.1 Genesis)
+TCOIN Canonical Rules
 
-## Status
-This document defines the **canonical rules** of the TCOIN network.
-Any implementation, fork, or derivative MUST comply with this document
-to claim legitimacy as “TCOIN”.
+This document defines the canonical rules for the TCOIN repository. It ensures forks, contributors, and users know how to reference and maintain official TCOIN releases.
 
-Code may fork.
-Ledgers may fork.
-**Canon does not.**
 
 ---
 
-## 1. Identity
+1. Canonical Repository
 
-- Name: **TCOIN**
-- Symbol: **TCOIN**
-- Version: **v0.1-genesis**
-- Network Type: Peer-to-peer, IP-based
-- Intended Environment: Termux-first, low-resource devices
+Official repo: https://github.com/pablosx/TCOIN
 
----
+Only this repository is considered the authoritative source for TCOIN code, documentation, and releases.
 
-## 2. Genesis
 
-- Max Supply: **15,000,000 TCOIN**
-- Genesis Allocation:
-  - **15,000,000 TCOIN minted at genesis**
-  - Allocated to **Developer Wallet**
-- Genesis Timestamp: `2026-02-09T00:00:00Z`
-
-The genesis event is final and non-repeatable.
 
 ---
 
-## 3. Canonical Authority
+2. Versioning & Tags
 
-The **Developer Wallet Public Key** is the canonical authority for v0.1.
+All official releases must be tagged with a v<major>.<minor>-<label> format.
 
-This key:
-- Defines genesis legitimacy
-- May recover tokens in cases of theft or failed delivery
-- May NOT mint beyond max supply
-- May NOT be replaced in v0.1
+Example: v0.1-genesis
 
-Loss or rotation of this key constitutes a **new version**, not a patch.
+Roadmap updates: v0.1-roadmap
 
----
 
-## 4. Ledger Rules
+Tags must never rewrite history.
 
-- The ledger is append-only
-- Every transaction MUST include:
-  - Sender public key
-  - Receiver public key
-  - Amount
-  - ISO-8601 UTC timestamp
-  - Transaction type
-- Balances are derived exclusively from the ledger
+Commits associated with tags should include ECONOMICS.md, ROADMAP.md, or other canonical documents.
 
-If two ledgers diverge, the canonical ledger is the one that:
-1. Matches genesis rules
-2. Honors max supply
-3. Respects developer authority constraints
+
 
 ---
 
-## 5. Peer Model
+3. Forking & Contributions
 
-- Peers are identified by IP:PORT
-- No DNS, no discovery layer required
-- Trust is local-first
-- Sync is pull-based (`/ledger`)
+Forks are allowed but must clearly state the source as https://github.com/pablosx/TCOIN.
 
----
+Changes that aim to alter canonical rules, token supply, or governance must not claim to be the official TCOIN.
 
-## 6. Fork Rules
+Contributions to the main repo are accepted via pull requests, with review and approval by the developer.
 
-Forks are **explicitly allowed**.
 
-However:
-- Forks MAY NOT claim to be canonical TCOIN
-- Forks MUST change at least one of:
-  - Name
-  - Genesis allocation
-  - Developer authority model
-
-Forks that retain the name “TCOIN” without complying with this document
-are considered **non-canonical derivatives**.
 
 ---
 
-## 7. Philosophy
+4. Ledger & Wallets
 
-TCOIN is not speculative by default.
-It is a **sovereign digital object** designed to exist without:
-- Mining
-- Staking
-- Oracles
-- Exchanges
-- Hype dependence
+Ledger format and wallet files are canonical only in this repo.
 
-Simplicity is a security feature.
+Developer wallet(s) have authority for recovery only.
+
+Backups and forks must not modify ledger history for past transactions.
+
+
 
 ---
 
-## 8. Final Clause
+5. Documentation
 
-This document supersedes all code.
+ECONOMICS.md and ROADMAP.md are canonical references for supply, backing, and evolution.
 
-If code and canon disagree, **canon wins**.
+CANONICAL.md defines the rules for future forks and official releases.
+
+
+
+---
+
+6. Governance Principles
+
+Stability is a feature.
+
+Power moves slowly.
+
+Authority is explicit and traceable.
+
+
+
+---
+
+Usage
+
+Forks, mirrors, or experimental versions must reference this repo and must not alter the canonical tag history.
+
+Developers or contributors who violate these rules risk invalidating claims of official TCOIN compliance.
