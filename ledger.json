@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "name": "TCOIN",
+    "max_supply": 15000000,
+    "genesis_time": "2026-02-09T00:00:00Z",
+    "dev_public_key": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e"
+  },
+  "balances": {
+    "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e": 14999684,
+    "10.0.0.163": 22,
+    "\"bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009\"": 22,
+    "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009": 272
+  },
+  "transactions": [
+    {
+      "type": "genesis",
+      "to": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "amount": 15000000,
+      "timestamp": "2026-02-09T00:00:00Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "10.0.0.163",
+      "amount": 22,
+      "timestamp": "2026-02-09T21:36:36.122906Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "\"bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009\"",
+      "amount": 22,
+      "timestamp": "2026-02-09T21:37:54.586448Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "amount": 22,
+      "timestamp": "2026-02-09T21:39:03.947640Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "amount": 100,
+      "timestamp": "2026-02-09T21:45:08.128318Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "amount": 100,
+      "timestamp": "2026-02-09T21:46:53.206073Z"
+    },
+    {
+      "type": "recovery",
+      "from": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "to": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "amount": 50,
+      "timestamp": "2026-02-09T21:53:51.281529Z"
+    },
+    {
+      "type": "recovery",
+      "from": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "to": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "amount": 50,
+      "timestamp": "2026-02-09T21:54:23.439551Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "amount": 100,
+      "timestamp": "2026-02-09T21:58:57.385608Z"
+    },
+    {
+      "type": "transfer",
+      "from": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "to": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "amount": 100,
+      "timestamp": "2026-02-09T22:12:13.739117Z"
+    },
+    {
+      "amount": 50,
+      "from": "bdea39bfecbd24a9a5d76159b5dccffeaeff64635e61919c0d97a60d26322009",
+      "timestamp": "2026-02-09T22:14:09.041563Z",
+      "to": "916ed68da229879cc22490e1e1f8673e9d9521609bb0833be0849ed6d3b56d9e",
+      "type": "recovery"
+    }
+  ]
+}
