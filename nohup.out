@@ -8,3 +8,4 @@ PING github.com (140.82.113.3) 56(84) bytes of data.
 --- github.com ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 97.730/97.730/97.730/0.000 ms
+Termux:API is not yet available on Google Play - see https://github.com/termux-play-store/termux-apps/issues/29 for updates
