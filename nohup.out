@@ -2,3 +2,9 @@ Agent pid 14534
 Agent pid 15731
 Agent pid 16161
 Agent pid 16676
+PING github.com (140.82.113.3) 56(84) bytes of data.
+64 bytes from lb-140-82-113-3-iad.github.com (140.82.113.3): icmp_seq=1 ttl=49 time=97.7 ms
+
+--- github.com ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 97.730/97.730/97.730/0.000 ms
