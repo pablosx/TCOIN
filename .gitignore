@@ -16,3 +16,4 @@ peers.json
 # Virtual environments (if used)
 venv/
 .env
+secret.txt
