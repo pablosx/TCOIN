@@ -6,7 +6,7 @@ NOHUP_LOG="$HOME/TCOIN/nohup.out"
 
 MAX_RESTARTS=5
 WINDOW=3600          # 1 hour window
-CHECK_INTERVAL=60
+CHECK_INTERVAL=5
 CPU_LIMIT=80         # percent
 MEM_LIMIT=150000     # KB (~150MB)
 
