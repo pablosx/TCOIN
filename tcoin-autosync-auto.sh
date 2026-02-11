@@ -1,78 +1,105 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# Fully automated TCOIN sync with dynamic heartbeat + daily summary
+# ===== TCOIN Autonomous Sync + Stats Dashboard =====
 
-# Start ssh-agent if not running
+sleep 5
+
+# Start ssh-agent if needed
 if [ -z "$SSH_AGENT_PID" ]; then
     eval $(ssh-agent -s)
 fi
 
 SSH_KEY="$HOME/.ssh/id_ed25519"
-if ! ssh-add -l | grep -q "$(ssh-keygen -lf $SSH_KEY | awk '{print $2}')" ; then
-    ssh-add $SSH_KEY < /dev/null 2>/dev/null
-fi
+ssh-add -l | grep -q "$(ssh-keygen -lf $SSH_KEY | awk '{print $2}')" || ssh-add $SSH_KEY < /dev/null 2>/dev/null
 
-# Heartbeat & summary configuration
-MIN_HEARTBEAT=$((6*3600))   # 6 hours
-MAX_HEARTBEAT=$((12*3600))  # 12 hours
-LAST_SUCCESSFUL_SYNC=$(date +%s)
-LAST_HEARTBEAT=$(date +%s)
-DAILY_SUMMARY_FILE="$HOME/TCOIN/daily_summary.log"
+# ---- Config ----
+SYNC_INTERVAL=3600
+MIN_HEARTBEAT=$((6*3600))
+MAX_HEARTBEAT=$((12*3600))
+
 TODAY=$(date +%Y-%m-%d)
+START_OF_DAY=$(date +%s)
 
-# Initialize daily summary file
-echo "Daily summary for $TODAY" > "$DAILY_SUMMARY_FILE"
+SUCCESS=0
+FAIL=0
+NETWORK_FAIL=0
+HEARTBEAT_COUNT=0
+
+LAST_SUCCESS=$(date +%s)
+LAST_HEARTBEAT=$(date +%s)
 
 while true; do
     NOW=$(date +%s)
     DATE_STR=$(date)
-    SYNC_SUCCESS=false
 
-    # --- Sync cycle ---
+    # ---- Sync Attempt ----
     if ping -c 1 github.com &>/dev/null; then
         if ~/TCOIN/sync-tcoin-auto-full.sh >> ~/TCOIN/sync.log 2>&1; then
-            SYNC_SUCCESS=true
-            LAST_SUCCESSFUL_SYNC=$NOW
-            termux-notification --title "TCOIN Sync ✅" --content "Sync completed at $DATE_STR" --priority high
-            echo "$DATE_STR: Sync ✅" >> "$DAILY_SUMMARY_FILE"
+            ((SUCCESS++))
+            LAST_SUCCESS=$NOW
+            echo "$DATE_STR: Sync SUCCESS" >> ~/TCOIN/sync.log
         else
-            termux-notification --title "TCOIN Sync ⚠️" --content "Sync failed at $DATE_STR" --priority high
-            echo "$DATE_STR: Sync ⚠️" >> "$DAILY_SUMMARY_FILE"
+            ((FAIL++))
+            echo "$DATE_STR: Sync FAILED" >> ~/TCOIN/sync.log
         fi
     else
-        termux-notification --title "TCOIN Sync ⚠️" --content "Network unreachable at $DATE_STR" --priority high
-        echo "$DATE_STR: Network unreachable ⚠️" >> "$DAILY_SUMMARY_FILE"
+        ((NETWORK_FAIL++))
+        echo "$DATE_STR: Network unreachable" >> ~/TCOIN/sync.log
     fi
 
-    # --- Dynamic heartbeat ---
-    TIME_SINCE_LAST_SYNC=$(( NOW - LAST_SUCCESSFUL_SYNC ))
-    TIME_SINCE_LAST_HEARTBEAT=$(( NOW - LAST_HEARTBEAT ))
+    # ---- Dynamic Heartbeat ----
+    TIME_SINCE_SUCCESS=$((NOW - LAST_SUCCESS))
+    TIME_SINCE_HEARTBEAT=$((NOW - LAST_HEARTBEAT))
 
-    if (( TIME_SINCE_LAST_SYNC >= MIN_HEARTBEAT )) && (( TIME_SINCE_LAST_HEARTBEAT >= MIN_HEARTBEAT )); then
-        HEARTBEAT_MSG="TCOIN alive. Last successful sync: $(date -d @$LAST_SUCCESSFUL_SYNC)"
-        termux-notification --title "TCOIN Heartbeat 💓" --content "$HEARTBEAT_MSG" --priority low
-        echo "$DATE_STR: Heartbeat 💓" >> "$DAILY_SUMMARY_FILE"
+    if (( TIME_SINCE_SUCCESS >= MIN_HEARTBEAT && TIME_SINCE_HEARTBEAT >= MIN_HEARTBEAT )); then
+        ((HEARTBEAT_COUNT++))
+        termux-notification --title "TCOIN Heartbeat 💓" \
+        --content "Alive. Last success: $(date -d @$LAST_SUCCESS)" \
+        --priority low
         LAST_HEARTBEAT=$NOW
     fi
 
-    if (( TIME_SINCE_LAST_HEARTBEAT >= MAX_HEARTBEAT )); then
-        HEARTBEAT_MSG="TCOIN alive. Forced heartbeat. Last sync: $(date -d @$LAST_SUCCESSFUL_SYNC)"
-        termux-notification --title "TCOIN Heartbeat 💓" --content "$HEARTBEAT_MSG" --priority low
-        echo "$DATE_STR: Forced heartbeat 💓" >> "$DAILY_SUMMARY_FILE"
+    if (( TIME_SINCE_HEARTBEAT >= MAX_HEARTBEAT )); then
+        ((HEARTBEAT_COUNT++))
+        termux-notification --title "TCOIN Forced Heartbeat 💓" \
+        --content "System alive. Last sync: $(date -d @$LAST_SUCCESS)" \
+        --priority low
         LAST_HEARTBEAT=$NOW
     fi
 
-    # --- Daily summary notification at midnight ---
+    # ---- Daily Summary at Midnight ----
     CURRENT_DATE=$(date +%Y-%m-%d)
+
     if [[ "$CURRENT_DATE" != "$TODAY" ]]; then
-        # Send summary notification
-        SUMMARY=$(tail -n 20 "$DAILY_SUMMARY_FILE" | tr '\n' ' ')
-        termux-notification --title "TCOIN Daily Summary 📊" --content "$SUMMARY" --priority high
-        # Reset for new day
+
+        TOTAL_ATTEMPTS=$((SUCCESS + FAIL + NETWORK_FAIL))
+        if (( TOTAL_ATTEMPTS > 0 )); then
+            UPTIME=$(awk "BEGIN { printf \"%.2f\", ($SUCCESS/$TOTAL_ATTEMPTS)*100 }")
+        else
+            UPTIME="100.00"
+        fi
+
+        SUMMARY="Date: $TODAY
+Success: $SUCCESS
+Failures: $FAIL
+Network Drops: $NETWORK_FAIL
+Heartbeats: $HEARTBEAT_COUNT
+Uptime: $UPTIME%"
+
+        echo -e "$SUMMARY" >> ~/TCOIN/daily_summary.log
+
+        termux-notification --title "TCOIN Daily Dashboard 📊" \
+        --content "Success:$SUCCESS Fail:$FAIL Net:$NETWORK_FAIL Up:$UPTIME%" \
+        --priority high
+
+        # Reset counters
         TODAY="$CURRENT_DATE"
-        echo "Daily summary for $TODAY" > "$DAILY_SUMMARY_FILE"
+        SUCCESS=0
+        FAIL=0
+        NETWORK_FAIL=0
+        HEARTBEAT_COUNT=0
+        START_OF_DAY=$NOW
     fi
 
-    # Wait 1 hour before next sync
-    sleep 3600
+    sleep $SYNC_INTERVAL
 done
