@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# tcoin-watchdog.sh — Monitors and self-heals TCOIN scripts
+# tcoin-watchdog.sh — Full self-healing watchdog for TCOIN
 
 TCOIN_DIR="$HOME/TCOIN"
 LOG="$TCOIN_DIR/watchdog.log"
@@ -32,6 +32,12 @@ log_event() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $MSG" | tee -a "$LOG"
 }
 
+# Check network connectivity
+check_network() {
+    ping -c 1 github.com >/dev/null 2>&1
+    return $?
+}
+
 # Ensure script is executable and running
 check_and_heal() {
     local SCRIPT="$1"
@@ -47,8 +53,27 @@ check_and_heal() {
     # Restart if not running
     if ! pgrep -f "$SCRIPT_PATH" >/dev/null; then
         log_event "⚠️ $SCRIPT not running. Restarting..."
-        send_discord_alert "⚠️ Watchdog restarted $SCRIPT at $(date)"
-        nohup "$SCRIPT_PATH" >/dev/null 2>&1 &
+        send_discord_alert "⚠️ Watchdog restarting $SCRIPT at $(date)"
+
+        # Retry logic: try 3 times
+        for i in {1..3}; do
+            if [ "$SCRIPT" == "tcoin-autosync-auto.sh" ]; then
+                # Only start autosync if network is available
+                if ! check_network; then
+                    log_event "⚠️ Network unavailable. Delaying autosync start."
+                    sleep 10
+                    continue
+                fi
+            fi
+
+            nohup "$SCRIPT_PATH" >> "$TCOIN_DIR/$SCRIPT.log" 2>&1 &
+            sleep 2
+            if pgrep -f "$SCRIPT_PATH" >/dev/null; then
+                log_event "✅ $SCRIPT restarted successfully (attempt $i)"
+                send_discord_alert "✅ Watchdog successfully restarted $SCRIPT at $(date)"
+                break
+            fi
+        done
     fi
 }
 
@@ -62,5 +87,5 @@ while true; do
     for SCRIPT in "${SCRIPTS[@]}"; do
         check_and_heal "$SCRIPT"
     done
-    sleep 60  # check every 60 seconds
+    sleep 60  # Check every 60 seconds
 done
