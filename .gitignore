@@ -1,19 +1,17 @@
-# Python caches
-__pycache__/
-*.py[cod]
-
-# Sensitive TCOIN data
-wallet.json
-ledger.json
-peers.json
 
 # OS / editor files
-.DS_Store
-*.swp
-*.swo
-*.tmp
-
+# Python caches
+# Sensitive TCOIN data
 # Virtual environments (if used)
-venv/
+*.py[cod]
+*.swo
+*.swp
+*.tmp
+.DS_Store
 .env
+__pycache__/
+ledger.json
+peers.json
 secret.txt
+venv/
+wallet.json
