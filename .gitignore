@@ -1,17 +1,32 @@
+# ==========================
+# TCOIN Repo Ignore List
+# ==========================
+
+# Logs
+*.log
+sync.log
+integrity.log
+
+# Secret / sensitive files
+secret.txt
+wallet.json
+peers.json
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
 
 # OS / editor files
-# Python caches
-# Sensitive TCOIN data
-# Virtual environments (if used)
-*.py[cod]
-*.swo
-*.swp
-*.tmp
 .DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+*.vscode/
+
+# Node / environment files
+node_modules/
 .env
-__pycache__/
-ledger.json
-peers.json
-secret.txt
-venv/
-wallet.json
+
+# Any other auto-generated files
+*.cache
