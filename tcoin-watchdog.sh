@@ -1,67 +1,66 @@
 #!/data/data/com.termux/files/usr/bin/bash
+# tcoin-watchdog.sh — Monitors and self-heals TCOIN scripts
 
-SCRIPT="$HOME/TCOIN/tcoin-autosync-auto.sh"
-LOG="$HOME/TCOIN/watchdog.log"
-NOHUP_LOG="$HOME/TCOIN/nohup.out"
+TCOIN_DIR="$HOME/TCOIN"
+LOG="$TCOIN_DIR/watchdog.log"
 
-MAX_RESTARTS=5
-WINDOW=3600          # 1 hour window
-CHECK_INTERVAL=5
-CPU_LIMIT=80         # percent
-MEM_LIMIT=150000     # KB (~150MB)
+# Discord webhook for alerts
+DISCORD_WEBHOOK="https://discord.com/api/webhooks/1470988669442850922/kjKcV5aYblGHzHRSfl4_4CTMPvKMigm4P9MKXq9c6aHcnvAx-KFbZcdxuRpDJvz1iSWR"
 
-RESTART_COUNT=0
-WINDOW_START=$(date +%s)
+# Scripts to monitor
+SCRIPTS=(
+    "tcoin-autosync-auto.sh"
+    "tcoin-autosync-network.sh"
+    "tcoin-integrity-guard.sh"
+)
 
-echo "=== TCOIN Watchdog started at $(date) ===" >> $LOG
+# --------------------------
+# Functions
+# --------------------------
+
+# Send alert to Discord
+send_discord_alert() {
+    local MSG="$1"
+    curl -s -H "Content-Type: application/json" \
+         -X POST -d "{\"content\":\"$MSG\"}" \
+         "$DISCORD_WEBHOOK"
+}
+
+# Log locally
+log_event() {
+    local MSG="$1"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $MSG" | tee -a "$LOG"
+}
+
+# Ensure script is executable and running
+check_and_heal() {
+    local SCRIPT="$1"
+    local SCRIPT_PATH="$TCOIN_DIR/$SCRIPT"
+
+    # Restore execute permission if needed
+    if [ ! -x "$SCRIPT_PATH" ]; then
+        chmod +x "$SCRIPT_PATH"
+        log_event "🛠️ Restored execute permission on $SCRIPT"
+        send_discord_alert "🛠️ Watchdog restored execute permission on $SCRIPT"
+    fi
+
+    # Restart if not running
+    if ! pgrep -f "$SCRIPT_PATH" >/dev/null; then
+        log_event "⚠️ $SCRIPT not running. Restarting..."
+        send_discord_alert "⚠️ Watchdog restarted $SCRIPT at $(date)"
+        nohup "$SCRIPT_PATH" >/dev/null 2>&1 &
+    fi
+}
+
+# --------------------------
+# Main Watchdog Loop
+# --------------------------
+
+log_event "🚨 Watchdog started. Monitoring TCOIN scripts..."
 
 while true; do
-
-    NOW=$(date +%s)
-
-    # Reset restart window if expired
-    if (( NOW - WINDOW_START > WINDOW )); then
-        RESTART_COUNT=0
-        WINDOW_START=$NOW
-        echo "$(date): Restart window reset." >> $LOG
-    fi
-
-    PID=$(pgrep -f tcoin-autosync-auto.sh)
-
-    if [ -z "$PID" ]; then
-        echo "$(date): Autosync not running. Restarting..." >> $LOG
-        
-        nohup $SCRIPT >> $NOHUP_LOG 2>&1 &
-        ((RESTART_COUNT++))
-
-        termux-notification --title "TCOIN Restarted 🔁" \
-        --content "Autosync restarted by watchdog." \
-        --priority high
-
-        if (( RESTART_COUNT >= MAX_RESTARTS )); then
-            echo "$(date): Too many restarts. Entering SAFE MODE." >> $LOG
-
-            termux-notification --title "TCOIN SAFE MODE ⚠" \
-            --content "Excessive crashes detected. Supervisor paused." \
-            --priority max
-
-            sleep 600
-        fi
-    else
-        # Resource monitoring
-        CPU=$(ps -p $PID -o %cpu= | awk '{print int($1)}')
-        MEM=$(ps -p $PID -o rss=)
-
-        if (( CPU > CPU_LIMIT )); then
-            echo "$(date): High CPU detected ($CPU%). Restarting..." >> $LOG
-            kill $PID
-        fi
-
-        if (( MEM > MEM_LIMIT )); then
-            echo "$(date): High memory usage (${MEM}KB). Restarting..." >> $LOG
-            kill $PID
-        fi
-    fi
-
-    sleep $CHECK_INTERVAL
+    for SCRIPT in "${SCRIPTS[@]}"; do
+        check_and_heal "$SCRIPT"
+    done
+    sleep 60  # check every 60 seconds
 done
