@@ -2,32 +2,66 @@
 
 SCRIPT="$HOME/TCOIN/tcoin-autosync-auto.sh"
 LOG="$HOME/TCOIN/watchdog.log"
+NOHUP_LOG="$HOME/TCOIN/nohup.out"
+
+MAX_RESTARTS=5
+WINDOW=3600          # 1 hour window
+CHECK_INTERVAL=60
+CPU_LIMIT=80         # percent
+MEM_LIMIT=150000     # KB (~150MB)
 
 RESTART_COUNT=0
-MAX_RESTARTS=5
-WINDOW=3600  # 1 hour restart window
+WINDOW_START=$(date +%s)
 
-echo "TCOIN Watchdog started at $(date)" >> $LOG
+echo "=== TCOIN Watchdog started at $(date) ===" >> $LOG
 
 while true; do
 
-    if ! pgrep -f "tcoin-autosync-auto.sh" > /dev/null; then
+    NOW=$(date +%s)
 
+    # Reset restart window if expired
+    if (( NOW - WINDOW_START > WINDOW )); then
+        RESTART_COUNT=0
+        WINDOW_START=$NOW
+        echo "$(date): Restart window reset." >> $LOG
+    fi
+
+    PID=$(pgrep -f tcoin-autosync-auto.sh)
+
+    if [ -z "$PID" ]; then
         echo "$(date): Autosync not running. Restarting..." >> $LOG
         
-        nohup $SCRIPT >> $HOME/TCOIN/nohup.out 2>&1 &
+        nohup $SCRIPT >> $NOHUP_LOG 2>&1 &
         ((RESTART_COUNT++))
 
         termux-notification --title "TCOIN Restarted 🔁" \
-        --content "Autosync was restarted by watchdog." \
+        --content "Autosync restarted by watchdog." \
         --priority high
 
         if (( RESTART_COUNT >= MAX_RESTARTS )); then
-            termux-notification --title "TCOIN ALERT ⚠" \
-            --content "Multiple restarts detected in 1 hour." \
+            echo "$(date): Too many restarts. Entering SAFE MODE." >> $LOG
+
+            termux-notification --title "TCOIN SAFE MODE ⚠" \
+            --content "Excessive crashes detected. Supervisor paused." \
             --priority max
+
+            sleep 600
+        fi
+    else
+        # Resource monitoring
+        CPU=$(ps -p $PID -o %cpu= | awk '{print int($1)}')
+        MEM=$(ps -p $PID -o rss=)
+
+        if (( CPU > CPU_LIMIT )); then
+            echo "$(date): High CPU detected ($CPU%). Restarting..." >> $LOG
+            kill $PID
+        fi
+
+        if (( MEM > MEM_LIMIT )); then
+            echo "$(date): High memory usage (${MEM}KB). Restarting..." >> $LOG
+            kill $PID
         fi
     fi
 
-    sleep 60
+    sleep $CHECK_INTERVAL
 done
