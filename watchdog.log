@@ -40,3 +40,19 @@ Tue Feb 10 22:58:02 EST 2026: Restart window reset.
 2026-02-10 23:15:26 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 4
 2026-02-10 23:15:41 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 5
 2026-02-10 23:16:42 - ⚠️ tcoin-autosync-auto.sh not running. Restarting...
+2026-02-10 23:46:33 - ✅ tcoin-autosync-network.sh restarted successfully (attempt 1)
+2026-02-10 23:46:34 - ⚠️ tcoin-integrity-guard.sh not running. Restarting...
+2026-02-10 23:46:50 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 1
+2026-02-10 23:47:05 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 2
+2026-02-10 23:47:20 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 3
+2026-02-10 23:47:35 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 4
+2026-02-10 23:47:50 - ⚠️ tcoin-integrity-guard.sh still not running after attempt 5
+2026-02-10 23:48:50 - ⚠️ tcoin-autosync-auto.sh not running. Restarting...
+2026-02-10 23:49:06 - ⚠️ tcoin-autosync-auto.sh still not running after attempt 1
+2026-02-10 23:49:21 - ⚠️ tcoin-autosync-auto.sh still not running after attempt 2
+2026-02-10 23:49:37 - ⚠️ tcoin-autosync-auto.sh still not running after attempt 3
+2026-02-10 23:49:39 - 🚨 Watchdog started. Monitoring TCOIN scripts...
+2026-02-10 23:49:39 - ⚠️ tcoin-autosync-auto.sh not running. Restarting...
+2026-02-10 23:49:42 - ✅ tcoin-autosync-auto.sh restarted successfully
+2026-02-10 23:49:43 - ⚠️ tcoin-integrity-guard.sh not running. Restarting...
+2026-02-10 23:49:46 - ❌ Failed to restart tcoin-integrity-guard.sh!
